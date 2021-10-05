@@ -26,7 +26,7 @@ typedef struct Queue
 }			Queue;
 
 Node	*getNode();
-`
+
 Node	*rBuildHeap(int n, int cur, Queue *q);
 Node	*BuildHeap(int n);
 void	downHeap(Node *node);
