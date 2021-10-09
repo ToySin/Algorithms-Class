@@ -22,6 +22,7 @@ void	insertItem(Tree *t);
 void	deleteItem(Tree *t);
 void	searchItem(Tree *t);
 
+Node	*sibling(Node *node);
 void	expandInternal(Node *node);
 void	reduceExternal(Node *node);
 
@@ -105,6 +106,7 @@ void	insertItem(Tree *t)
 void	deleteItem(Tree *t)
 {
 	Node	*temp = t->root;
+	Node	*succ;
 	int	key;
 
 	scanf("%d", &key);
@@ -114,6 +116,8 @@ void	deleteItem(Tree *t)
 		if (temp->key == key)
 		{
 			printf("%d\n", temp->key);
+			succ = inOrderSucc(temp);
+			temp->key = succ->key;
 			
 		}
 		else if (temp->key > key)
@@ -145,6 +149,13 @@ void	searchItem(Tree *t)
 	printf("X\n");
 }
 
+Node	*sibling(Node *node)
+{
+	if (!node->parent)
+		return node;
+	return (node == node->parent->left ? node->parent->right : node->parent->left);
+}
+
 void	expandInternal(Node *node)
 {
 	node->left = getNode();
@@ -153,7 +164,26 @@ void	expandInternal(Node *node)
 	node->right->parent = node;
 }
 
-void	reduceExternal(Node *node);
+void	reduceExternal(Node *node)
+{
+	Node	*p = node->parent;
+	Node	*s = sibling(node);
+	Node	*g = p->parent;
+
+	if (!g)
+		s->parent = NULL;
+	else
+	{
+		s->parent = g;
+		if (p == g->left)
+			g->left = s;
+		else
+			g->right = s;
+	}
+	free(node);
+	free(p);
+	return s;
+}
 
 int		findElement(Tree *t);
 Node	*treeSearch(Tree *t);
