@@ -112,9 +112,37 @@ void	deleteItem(Tree *t)
 		if (temp->key == key)
 		{
 			printf("%d\n", temp->key);
-			succ = inOrderSucc(temp);
-			temp->key = succ->key;
-			reduceExternal(succ);
+			
+			if (isInternal(temp->left) && isInternal(temp->right))
+			{
+				succ = inOrderSucc(temp);
+				temp->key = succ->key;
+				reduceExternal(succ);
+				return;
+			}
+			else if (isInternal(temp->left))
+			{
+				temp->left->parent = temp->parent;
+				if (temp->parent->left == temp)
+					temp->parent->left = temp->left;
+				else
+					temp->parent->right = temp->left;
+				free(temp->right);
+				free(temp);
+
+			}
+			else if (isInternal(temp->right))
+			{
+				temp->right->parent = temp->parent;
+				if (temp->parent->left == temp)
+					temp->parent->left = temp->right;
+				else
+					temp->parent->right = temp->right;
+				free(temp->left);
+				free(temp);
+			}
+			else
+				reduceExternal(temp);
 			return;
 		}
 		else if (temp->key > key)
@@ -203,8 +231,6 @@ Node	*inOrderSucc(Node *node)
 	Node	*succ = node;
 
 	succ = succ->right;
-	if (isExternal(succ))
-		return node->left;
 	while (isInternal(succ->left))
 		succ = succ->left;
 	return succ;
