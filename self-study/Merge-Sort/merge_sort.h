@@ -26,4 +26,6 @@ List	merge(List *left, List *right);
 void	append(List *list);
 void	print(List *list);
 
+void	freeList(List *list);
+
 #endif

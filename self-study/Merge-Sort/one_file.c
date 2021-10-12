@@ -129,5 +129,6 @@ int	main()
 	print(&list);
 	list = mergeSort(&list);
 	print(&list);
+	free(&list);
 	return 0;
 }

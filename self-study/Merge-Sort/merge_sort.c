@@ -100,3 +100,19 @@ void	print(List *list)
 	}
 	printf("\n");
 }
+
+void	freeList(List *list)
+{
+	Node	*temp = list->header->next;
+	Node	*prev = list->header;
+	
+	while (1)
+	{
+		temp = list->header->next;
+		if (temp == NULL)
+			break;
+		list->header->next = temp->next;
+		free(temp);
+	}
+	free(list->header);
+}
