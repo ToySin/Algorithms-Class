@@ -50,6 +50,7 @@ int insertItem(int key) {
 
 int removeMax() {
 	int k = H[1];
+	H[1] = H[n];
 	downHeap(1);
 	n--;
 	return k;
