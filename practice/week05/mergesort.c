@@ -55,6 +55,7 @@ List merge(List* left, List* right) {
 	free(right->head);
 	return list;
 }
+
 List merge_sort(List* list) {
 	int i;
 	List left, right;
@@ -68,16 +69,16 @@ List merge_sort(List* list) {
 
 	for (i = 0; i < list->length / 2 - 1; i++) 	p = p->next;
 
-	left.last = p;											//����Ʈ ����
+	left.last = p;
 	right.head->next = p->next;
 	left.last->next = NULL;
 	right.last = list->last;
 	left.length = list->length / 2;
 	right.length = list->length - left.length;
 
-	left = merge_sort(&left);				//���ҵ� ����Ʈ ����
+	left = merge_sort(&left);
 	right = merge_sort(&right);
-	return merge(&left, &right);	//���� �� ��ȯ
+	return merge(&left, &right);
 }
 
 void append(List* list) {
