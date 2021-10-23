@@ -19,13 +19,17 @@ typedef struct Tree
 Node	*getNode();
 Tree	*initTree();
 
+int		isExternal(Node *node);
+int		isInternal(Node *node);
+int		isBalanced(Node *node);
+
+void	expandExternal(Node *node);
+
 void	insertItem(Tree *t);
 void	searchItem(Tree *t);
 
-void	expandInternal(Node *node);
-
-int		isExternal(Node *node);
-int		isInternal(Node *node);
+void	searchAndFixAfterInsertion(Node *node);
+Node	*restructure(Node *x, Node *y, Node *z);
 
 void	printPreorder(Tree *t);
 void	preorder(Node *node);
@@ -90,7 +94,7 @@ void	insertItem(Tree *t)
 			temp = temp->right;
 	}
 	temp->key = key;
-	expandInternal(temp);
+	expandExternal(temp);
 }
 
 void	searchItem(Tree *t)
@@ -115,7 +119,7 @@ void	searchItem(Tree *t)
 	printf("X\n");
 }
 
-void	expandInternal(Node *node)
+void	expandExternal(Node *node)
 {
 	node->left = getNode();
 	node->left->parent = node;
@@ -131,6 +135,31 @@ int		isExternal(Node *node)
 int		isInternal(Node *node)
 {
 	return (node->left || node->right);
+}
+
+int		isBalanced(Node *node)
+{
+	int	delta = node->left->height - node->right->height;
+
+	return (-2 < delta) && (delta < 2);
+}
+
+
+void	getInorderRank(Node *rank, Node *x, Node *y, Node *z)
+{
+	
+}
+
+
+Node	*restructure(Node *x, Node *y, Node *z)
+{
+	Node	inorder[3];
+	Node	T[4];
+
+	// get inorder[3];
+
+	// if inorder[3] and left or right is not inorder[3]
+	// postorder rank T[0..3]
 }
 
 void	printPreorder(Tree *t)
