@@ -23,16 +23,19 @@ int		isRoot(Node *node);
 int		isExternal(Node *node);
 int		isInternal(Node *node);
 int		isBalanced(Node *node);
+int		isLeft(Node* node);
+int		isRight(Node* node);
 
 void	expandExternal(Node *node);
 
 void	insertItem(Tree *t);
 void	searchItem(Tree *t);
 
-void	postRefreshHeight(Node *node);
-void	refreshHeight(Node *node);
-Node	*searchAndFixAfterInsertion(Node *node);
-Node	*restructure(Node *x, Node *y, Node *z);
+void	postRenewalHeight(Node *node);
+void	renewalHeight(Node *node);
+
+void	searchAndFixAfterInsertion(Tree *t, Node *node);
+Node	*restructure(Node *z);
 
 void	printPreorder(Tree *t);
 void	preorder(Node *node);
@@ -82,6 +85,52 @@ Tree	*initTree()
 	return tree;
 }
 
+int		isRoot(Node *node)
+{
+	return !node->parent;
+}
+
+int		isExternal(Node *node)
+{
+	return (!(node->left) && !(node->right));
+}
+
+int		isInternal(Node *node)
+{
+	return (node->left || node->right);
+}
+
+int		isBalanced(Node *node)
+{
+	int	delta = node->left->height - node->right->height;
+
+	return (-2 < delta) && (delta < 2);
+}
+
+int		isLeft(Node *node)
+{
+	if (isRoot(node))
+		return 0;
+	return node->parent->left == node;
+}
+
+int		isRight(Node *node)
+{
+	if (isRoot(node))
+		return 0;
+	return node->parent->right == node;
+}
+
+void	expandExternal(Node *node)
+{
+	node->left = getNode();
+	node->left->parent = node;
+	node->left->height = 0;
+	node->right = getNode();
+	node->right->parent = node;
+	node->right->height = 0;
+}
+
 void	insertItem(Tree *t)
 {
 	Node	*temp = t->root;
@@ -98,11 +147,8 @@ void	insertItem(Tree *t)
 	}
 	temp->key = key;
 	expandExternal(temp);
-	postRefreshHeight(t->root);
-	if (!isRoot(temp))
-		if (!isRoot(temp->parent))
-			t->root = searchAndFixAfterInsertion(temp);
-	postRefreshHeight(t->root);
+	renewalHeight(temp);
+	searchAndFixAfterInsertion(t, temp);
 }
 
 void	searchItem(Tree *t)
@@ -127,100 +173,73 @@ void	searchItem(Tree *t)
 	printf("X\n");
 }
 
-void	refreshHeight(Node *node)
+void	renewalHeight(Node *node)
 {
+	node->height = node->left->height > node->right->height
+		? node->left->height + 1 : node->right->height + 1;
+	if (!isRoot(node))
+		renewalHeight(node->parent);
+}
+
+void	postRenewalHeight(Node *node)
+{
+	if (isInternal(node->left))
+		postRenewalHeight(node->left);
+	if (isInternal(node->right))
+		postRenewalHeight(node->right);
 	node->height = node->left->height > node->right->height
 		? node->left->height + 1 : node->right->height + 1;
 }
 
-void	postRefreshHeight(Node *node)
+void	searchAndFixAfterInsertion(Tree *t, Node *node)
 {
-	if (isInternal(node->left))
-		postRefreshHeight(node->left);
-	if (isInternal(node->right))
-		postRefreshHeight(node->right);
-	refreshHeight(node);
-}
+	Node	*z, *zp;
 
-Node	*searchAndFixAfterInsertion(Node *node)
-{
-	Node	*x, *y, *z, *zp;
-	int		child_flag;
-
-	x = node;
-	do
+	z = node;
+	while (1)
 	{
-		y = x->parent;
-		z = y->parent;
-		zp = z->parent;
-		if (!isRoot(z))
-		{
-			if (zp->left == z)
-				child_flag = 0;
-			else if (zp->right == z)
-				child_flag = 1;
-		}
-		if (!isBalanced(z))
-		{
-			z = restructure(x, y, z);
+		if (isRoot(z) && isBalanced(z))
+			return;
+		else if (!isBalanced(z))
 			break;
-		}
-		else
-			x = y;
-	} while (!isRoot(z));
-
-	if (zp)
-	{
-		if (child_flag == 0)
-			zp->left = z;
-		else
-			zp->right = z;
-	}
-	while (!isRoot(z))
 		z = z->parent;
-	return z;	
+	}
+	zp = z->parent;
+	if (isRoot(z))
+	{
+		t->root = restructure(z);
+		t->root->parent = NULL;
+	}
+	else if (isLeft(z))
+	{
+		z->parent->left = restructure(z);
+		zp->left->parent = zp;
+	}
+	else if (isRight(z))
+	{
+		z->parent->right = restructure(z);
+		zp->right->parent = zp;
+	}
+	postRenewalHeight(t->root);
 }
 
-void	expandExternal(Node *node)
+Node	*restructure(Node *z)
 {
-	node->left = getNode();
-	node->left->parent = node;
-	node->left->height = 0;
-	node->right = getNode();
-	node->right->parent = node;
-	node->right->height = 0;
-}
-
-int		isRoot(Node *node)
-{
-	return !node->parent;
-}
-
-int		isExternal(Node *node)
-{
-	return (!(node->left) && !(node->right));
-}
-
-int		isInternal(Node *node)
-{
-	return (node->left || node->right);
-}
-
-int		isBalanced(Node *node)
-{
-	int	delta = node->left->height - node->right->height;
-
-	return (-2 < delta) && (delta < 2);
-}
-
-Node	*restructure(Node *x, Node *y, Node *z)
-{
-	Node	*inorderRank[3] = { x, y, z };
+	Node	*x, *y;
+	Node	*inorderRank[3];
 	Node	*T[4];
 	Node	*temp;
 	int		min = 0;
 	int		t_idx, i_idx;
 
+	// set x, y, z
+	y = z->left->height > z->right->height ? z->left : z->right;
+	x = y->left->height > y->right->height ? y->left : y->right;
+	inorderRank[0] = x;
+	inorderRank[1] = y;
+	inorderRank[2] = z;
+
+	// set a, b, c
 	for (int i = 1; i < 3; i++)
 		if (inorderRank[min]->key > inorderRank[i]->key)
 			min = i;
@@ -234,6 +253,7 @@ Node	*restructure(Node *x, Node *y, Node *z)
 		inorderRank[2] = temp;
 	}
 
+	// set T[0] ~ T[3]
 	t_idx = 0;
 	i_idx = 0;
 	while (t_idx < 4)
@@ -251,12 +271,24 @@ Node	*restructure(Node *x, Node *y, Node *z)
 		i_idx++;
 	}
 
+	// restruct
+	/**
+	 * 				b
+	 * 		a				c
+	 * 	T0		T1		T2		T3
+	 */
 	inorderRank[1]->left = inorderRank[0];
+	inorderRank[0]->parent = inorderRank[1];
 	inorderRank[1]->right = inorderRank[2];
+	inorderRank[2]->parent = inorderRank[1];
 	inorderRank[0]->left = T[0];
+	T[0]->parent = inorderRank[0];
 	inorderRank[0]->right = T[1];
+	T[1]->parent = inorderRank[0];
 	inorderRank[2]->left = T[2];
+	T[2]->parent = inorderRank[2];
 	inorderRank[2]->right = T[3];
+	T[3]->parent = inorderRank[2];
 	
 	return inorderRank[1];
 }
