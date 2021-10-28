@@ -16,11 +16,11 @@ Node	*getNode()
 	return node;
 }
 
-void	initHashTable(Node *table, int M)
+void	initHashTable(Node **table, int M)
 {
-	table = (Node *)malloc(sizeof(Node) * M);
+	*table = (Node *)malloc(sizeof(Node) * M);
 	for (int i = 0; i < M; i++)
-		table[i].next = NULL;
+		(*table)[i].next = NULL;
 }
 
 int		hashFunction(int key, int M)
@@ -86,6 +86,7 @@ int		deleteItem(Node *table, int M)
 			free(wdnode);
 			return hash_code;
 		}
+		temp = temp->next;
 	}
 	hash_code = 0;
 	return hash_code;
@@ -135,7 +136,8 @@ int main()
 	char	operator = 'i';
 
 	scanf("%d", &M);
-	initHashTable(table, M);
+	getchar();
+	initHashTable(&table, M);
 
 	while (operator != 'e')
 	{
