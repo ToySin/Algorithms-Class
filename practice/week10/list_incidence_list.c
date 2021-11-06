@@ -55,6 +55,7 @@ void	deleteInc(Graph *g, Vertex *v_node, Edge *e_node);
 void	searchVertexAndPrintEdges(Graph *g);
 void	searchEdgeAndFixWeight(Graph *g);
 
+void	freeGraph(Graph *g);
 
 Vertex	*getVertexNode()
 {
@@ -221,6 +222,32 @@ void	insertInc(Graph *g, int u, int v)
 	}
 }
 
+void	deleteVertex(Graph *g, int v)
+{
+	Vertex	*v_node = g->vertex;
+	Vertex	*v_temp;
+	Inc		*temp;
+
+	while (v_node->link != NULL)
+	{
+		if (v_node->link->v == v)
+			break;
+		v_node = v_node->link;
+	}
+	if (v_node == NULL)
+		return;
+	
+	temp = v_node->link->header;
+
+	while (temp->link != NULL)
+		deleteEdge(g, temp->link->edge->u, temp->link->edge->v);
+	free(temp);
+
+	v_temp = v_node->link;
+	v_node->link = v_node->link->link;
+	free(v_temp);
+}
+
 void	deleteEdge(Graph *g, int u, int v)
 {
 	Edge	*e_node = g->edge;
@@ -315,6 +342,15 @@ void	searchEdgeAndFixWeight(Graph *g)
 		e_node->weight = weight;
 }
 
+void	freeGraph(Graph *g)
+{
+	while (g->vertex->link != NULL)
+		deleteVertex(g, g->vertex->link->v);
+	
+	free(g->vertex);
+	free(g->edge);
+	free(g);
+}
 
 int	main()
 {
@@ -349,8 +385,6 @@ int	main()
 			break;
 		}
 	}
-
-	// freeeeeeeeeeeee
-	
+	freeGraph(graph);
 	return 0;
 }
