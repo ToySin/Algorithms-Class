@@ -37,7 +37,6 @@ int		getIndexOfEdge(Graph *g, int u, int v);
 void	searchVertexAndPrintEdges(Graph *g);
 void	searchEdgeAndFixWeight(Graph *g);
 
-
 Graph	*createGraph()
 {
 	Graph	*g = (Graph *)malloc(sizeof(Graph));
@@ -220,8 +219,5 @@ int	main()
 			break;
 		}
 	}
-
-	// freeeeeeeeeeeee
-	
 	return 0;
 }
