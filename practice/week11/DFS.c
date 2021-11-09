@@ -86,6 +86,24 @@ void	DFS(Graph *g, int s)
 	rDFS(g, s);
 }
 
+void	freeGraph(Graph *g)
+{
+	Vertex	*temp;
+	Vertex	*f_temp;
+
+	for (int i = 0; i < g->n; i++)
+	{
+		temp = g->adj_list[i];
+		while (temp->link)
+		{
+			f_temp = temp->link;
+			temp->link = f_temp->link;
+			free(f_temp);
+		}
+		free(temp);
+	}
+}
+
 int	main()
 {
 	Graph	graph;
@@ -99,6 +117,7 @@ int	main()
 	for (int i = 0; i < m; i++)
 		insertEdge(&graph);
 	DFS(&graph, s);
+	freeGraph(&graph);
 	return 0;
 }
 
@@ -113,5 +132,11 @@ int	main()
 4 3
 3 1
 2 3
+
+1
+2
+3
+4
+5
 
 */
