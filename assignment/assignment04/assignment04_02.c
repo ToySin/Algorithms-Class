@@ -269,13 +269,25 @@ void	deleteItem(Tree *t)
 		{
 			printf("%d\n", temp->key);
 
+			/**
+			 * @brief
+			 * temp가 삭제해야 할 대상 노드이다.
+			 * 1. 양쪽 자식이 모두 있는 경우, 중위순회 계승자를 통해 삭제한다.
+			 * 2. 한쪽 자식만 있는 경우, 그 자식을 그대로 연결한다.
+			 * 3. 양쪽 자식이 없는 경우, 단순하게 외부 노드로 바꾼다.
+			 * 2, 3번의 경우에서 temp가 root인 경우를 따로 처리한다.
+			 * 이후 높이를 갱신하고 균형을 맞춘다.
+			 */
 			if (isInternal(temp->left) && isInternal(temp->right))
 			{
 				succ = inOrderSucc(temp);
 				temp->key = succ->key;
-				succ->parent->left = succ->right;
+				if (isLeft(succ))
+					succ->parent->left = succ->right;
+				if (isRight(succ))
+					succ->parent->right = succ->right;
 				succ->right->parent = succ->parent;
-				postRenewalHeight(t->root);
+				renewalHeight(succ->parent);
 				searchAndFixAfterDelete(t, succ->parent);
 				reduceExternal(succ->left);
 			}
@@ -285,7 +297,7 @@ void	deleteItem(Tree *t)
 				{
 					t->root = temp->left;
 					temp->left->parent = NULL;
-					postRenewalHeight(t->root);
+					renewalHeight(t->root);
 					reduceExternal(temp->right);
 					return;
 				}
@@ -294,7 +306,7 @@ void	deleteItem(Tree *t)
 				else if (isRight(temp))
 					temp->parent->right = temp->left;
 				temp->left->parent = temp->parent;
-				postRenewalHeight(t->root);
+				renewalHeight(temp->parent);
 				searchAndFixAfterDelete(t, temp->parent);
 				reduceExternal(temp->right);
 			}
@@ -304,7 +316,7 @@ void	deleteItem(Tree *t)
 				{
 					t->root = temp->right;
 					temp->right->parent = NULL;
-					postRenewalHeight(t->root);
+					renewalHeight(t->root);
 					reduceExternal(temp->left);
 					return;
 				}
@@ -313,7 +325,7 @@ void	deleteItem(Tree *t)
 				else if (isRight(temp))
 					temp->parent->right = temp->right;
 				temp->right->parent = temp->parent;
-				postRenewalHeight(t->root);
+				renewalHeight(temp->parent);
 				searchAndFixAfterDelete(t, temp->parent);
 				reduceExternal(temp->left);
 			}
@@ -321,8 +333,8 @@ void	deleteItem(Tree *t)
 			{
 				if (isRoot(temp))
 				{
-					free(temp);
-					t->root = getNode();
+					t->root = temp->right;
+					reduceExternal(temp->left);
 					return;
 				}
 				if (isLeft(temp))
@@ -497,7 +509,6 @@ void	searchAndFixAfterDelete(Tree *t, Node *node)
 		 * 현재 zp는 개조 된 부트리의 부모이다.
 		 * zp 아래의 부트리는 개조 완료되어 균형이 맞으므로
 		 * zp부터 다시 검사하면서 root까지 올라간다.
-		 * 
 		 */
 		z = zp;
 	}
@@ -522,9 +533,11 @@ Node	*restructure(Node *z)
 	 * @brief 
 	 * z의 높이가 더 높은 자식이 y, 같은 원리로 y의 자식 x를 선정한다.
 	 * 이후 중위순위 배열에 x, y, z를 넣는다.
+	 * 90->100점 나온 이유 - 양쪽 자식의 높이가 같은 경우
+	 * 오른자식을 선택 -> 왼자식을 선택으로 변경 후 100점
 	 */
-	y = z->left->height > z->right->height ? z->left : z->right;
-	x = y->left->height > y->right->height ? y->left : y->right;
+	y = z->left->height >= z->right->height ? z->left : z->right;
+	x = y->left->height >= y->right->height ? y->left : y->right;
 	inorderRank[0] = x;
 	inorderRank[1] = y;
 	inorderRank[2] = z;
