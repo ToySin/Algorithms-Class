@@ -1,9 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
-
-// priority-queue에 edge-list ascending으로 넣고
-// dequeue하면서 union-set에 vertex add하기,
-// vertex의 양 끝점 모두가 union-set 안에 있으면 cycle이니까 out
 
 typedef struct Edge
 {
@@ -18,17 +13,44 @@ typedef struct Union
 	int	size;
 }		Union;
 
-int		is_in_union(Union *u, int vertex)
+void	init_union(Union *u, int n)
 {
-	for (int i = 0; i < u->size; i++)
-		if (u->vertices[i] == vertex)
-			return (1);
-	return (0);
+	for (int i = 0; i < n; i++)
+		u->vertices[i] = i + 1;
+	u->size = n;
 }
 
-void	insert_union(Union *u, int vertex)
+int	is_one_union(Union *u)
 {
-	u->vertices[u->size++] = vertex;
+	for (int i = 0; i < u->size; i++)
+		if (u->vertices[i] != 1)
+			return (0);
+	return (1);
+}
+
+int	is_in_same_union(Union *u, int v1, int v2)
+{
+	return (u->vertices[v1 - 1] == u->vertices[v2 - 1]);
+}
+
+void	union_vertex(Union *u, int v1, int v2)
+{
+	int	dest_union;
+	int	src_union;
+
+	if (u->vertices[v1 - 1] < u->vertices[v2 - 1])
+	{
+		dest_union = u->vertices[v1 - 1];
+		src_union = u->vertices[v2 - 1];
+	}
+	else
+	{
+		dest_union = u->vertices[v2 - 1];
+		src_union = u->vertices[v1 - 1];
+	}
+	for (int i = 0; i < u->size; i++)
+		if (u->vertices[i] == src_union)
+			u->vertices[i] = dest_union;
 }
 
 int	main()
@@ -53,28 +75,15 @@ int	main()
 			}
 		}
 	}
-
+	init_union(&u, n);
 	m = 0;
 	total = 0;
-	while (u.size < n)
+	while (!is_one_union(&u))
 	{
-		if (!is_in_union(&u, edges[m].v1) && !is_in_union(&u, edges[m].v2))
+		if (!is_in_same_union(&u, edges[m].v1, edges[m].v2))
 		{
-			insert_union(&u, edges[m].v1);
-			insert_union(&u, edges[m].v2);
-			printf(" %d", edges[m].weight);
-			total += edges[m].weight;
-		}
-		else if (!is_in_union(&u, edges[m].v1))
-		{
-			insert_union(&u, edges[m].v1);
-			printf(" %d", edges[m].weight);
-			total += edges[m].weight;
-		}
-		else if (!is_in_union(&u, edges[m].v2))
-		{
-			insert_union(&u, edges[m].v2);
-			printf(" %d", edges[m].weight);
+			union_vertex(&u, edges[m].v1, edges[m].v2);
+			printf("%d\n", edges[m].weight);
 			total += edges[m].weight;
 		}
 		m++;
@@ -82,3 +91,29 @@ int	main()
 	printf("\n%d", total);
 	return (0);
 }
+
+
+/*
+6 9
+1 2 3
+1 3 20
+2 4 25
+2 5 17
+3 4 34
+3 5 1
+3 6 12
+4 5 5
+5 6 37
+*/
+
+
+/*
+5 7
+1 2 75
+1 4 95
+1 3 51
+2 4 9
+4 3 19
+4 5 42
+3 5 31
+*/
