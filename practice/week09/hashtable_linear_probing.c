@@ -60,7 +60,7 @@ int main()
 		return 0;
 	for (int i = 0; i < M; i++)
 		table[i] = 0;
-	
+
 	while (operator != 'e')
 	{
 		scanf("%c", &operator);
