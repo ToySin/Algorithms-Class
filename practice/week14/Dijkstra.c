@@ -32,14 +32,13 @@ void	Dijkstra(int adj[100][100], int n, int s)
 	int	curr;
 	int	new_dist;
 
-	s -= 1;
-	dist[s] = 0;
+
 	for (int i = 0; i < n; i++)
 	{
-		if (i != s)
-			dist[i] = 10000;
+		dist[i] = 10000;
 		visited[i] = 0;
 	}
+	dist[s - 1] = 0;
 	while (!is_visited_all(visited, n))
 	{
 		curr = get_min_idx(dist, visited, n);
@@ -49,21 +48,20 @@ void	Dijkstra(int adj[100][100], int n, int s)
 			if (!adj[curr][i])
 				continue ;
 			new_dist = dist[curr] + adj[curr][i];
-			if (new_dist < dist[i] || dist[i] == -1)
+			if (new_dist < dist[i])
 				dist[i] = new_dist;
 		}
 	}
 	for (int i = 0; i < n; i++)
-		if (i != s && dist[i] != 10000)
+		if (i != (s - 1) && dist[i] != 10000)
 			printf("%d %d\n", i + 1, dist[i]);
 }
 
 int main()
 {
+	int	adj_matrix[100][100];
 	int	n, m, s;
 	int	v1, v2, w;
-	int	distance[100];
-	int	adj_matrix[100][100];
 
 	scanf("%d %d %d", &n, &m, &s);
 	for (int i = 0; i < n; i++)
