@@ -1,85 +1,107 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct Vertex
+typedef struct Vertex
 {
-	int	adj_v;
-	int	weight;
-	int	dist;
-	struct Vertex	*link;
-};
+	int vname;
+	int weight;
+	int dist;
+	struct Vertex *link;
+}Vertex;
 
-struct Graph
+typedef struct Graph
 {
-	struct Vertex	vertices[101];
-	int	v_size;
-};
+	Vertex v[100];
+	int vsize;
+}Graph;
 
-
-struct Vertex	*get_vertex(int v2, int w)
+Vertex *get_vertex()
 {
-	struct Vertex	*vertex;
+	Vertex *node = (Vertex *)malloc(sizeof(Vertex));
 
-	if (!(vertex = (struct Vertex *)malloc(sizeof(struct Vertex))))
-		return (NULL);
-	vertex->adj_v = v2;
-	vertex->weight = w;
-	return (vertex);
+	node->link = 0;
+	return (node);
 }
 
-void	insert_inc(struct Vertex *v1, struct Vertex *v2)
+void insert_edge(Graph *g, int v1, int v2, int weight)
 {
-	while (v1->link)
+	Vertex *node = get_vertex();
+
+	node->vname = v2;
+	node->weight = weight;
+	node->link = g->v[v1 - 1].link;
+	g->v[v1 - 1].link = node;
+}
+
+Vertex *get_min_vertex(Graph *g, int *visited, int n)
+{
+	int min_idx = 0;
+
+	for (int i = 0; i < n; i++)
 	{
-		if (v2->weight < v1->link->weight)
-			break ;
-		v1 = v1->link;
+		if (visited[i])
+			continue ;
+		else if (visited[min_idx])
+			min_idx = i;
+		else if (g->v[min_idx].dist > g->v[i].dist)
+			min_idx = i;
 	}
-	v2->link = v1->link;
-	v1->link = v2;
+	return (&g->v[min_idx]);
 }
 
-int	is_all_visited(int *visited, int n)
+int PrimJarnik(Graph *g)
 {
-	for (int i = 1; i <= n; i++)
-		if (!visited[i])
-			return (0);
-	return (1);
-}
+	int visited[100];
+	Vertex *curr;
+	Vertex *curr_inc;
+	int weight;
 
-void	Prim_Jarnik(struct Graph *graph)
-{
-	int	visited[101];
-
-	for (int i = 1; i <= graph->v_size; i++)
+	for (int i = 0; i < g->vsize; i++)
+	{
+		g->v[i].dist = 30000;
 		visited[i] = 0;
-
-	while (!is_all_visited(visited, graph->v_size))
-	{
-
 	}
+	g->v[0].dist = 0;
+	weight = 0;
+	for (int i = 0; i < g->vsize; i++)
+	{
+		curr = get_min_vertex(g, visited, g->vsize);
+		curr_inc = curr->link;
+		printf(" %d", curr->vname);
+		visited[curr->vname - 1] = 1;
+		while (curr_inc)
+		{
+			if (visited[curr_inc->vname - 1] == 0)
+				if (g->v[curr_inc->vname - 1].dist > curr_inc->weight)
+					g->v[curr_inc->vname - 1].dist = curr_inc->weight;
+			curr_inc = curr_inc->link;
+		}
+	}
+	for (int i = 1; i < g->vsize; i++)
+		weight += g->v[i].dist;
+	printf("\n%d", weight);
 }
 
-int	main()
+int main()
 {
-	struct Graph g;
-	struct Vertex	*temp;
+	Graph g;
 	int n, m;
 	int v1, v2, w;
 
 	scanf("%d %d", &n, &m);
-	g.v_size = n;
-	for (int i = 1; i <= n; i++)
+	g.vsize = n;
+	for (int i = 0; i < n; i++)
 	{
-		g.vertices[i].link = NULL;
-		g.vertices[i].dist = 20000;
+		g.v[i].vname = i + 1;
+		g.v[i].link = NULL;
 	}
 	for (int i = 0; i < m; i++)
 	{
 		scanf("%d %d %d", &v1, &v2, &w);
-		temp = get_vertex(v2, w);
-		insert_inc(&g.vertices[v1], temp);
+		insert_edge(&g, v1, v2, w);
+		insert_edge(&g, v2, v1, w);
 	}
-	Prim_Jarnik(&g);
+	PrimJarnik(&g);
+	//free
 	return (0);
 }
