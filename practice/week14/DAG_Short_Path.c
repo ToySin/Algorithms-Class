@@ -98,11 +98,6 @@ void DAGPath(Graph *g)
 	dist[topo[0] - 1] = 0;
 	for (int i = 0; i < g->vsize - 1; i++)
 	{
-
-		for (int i = 0; i < g->vsize; i++)
-			printf(" %d", dist[i]);
-		printf("\n");
-
 		curr = &g->vertices[topo[i] - 1];
 		curr_out = curr->out_list;
 		while (curr_out)
